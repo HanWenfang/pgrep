@@ -26,6 +26,8 @@ def parallel(partitions, parameter):
 		listToGrep(lines, fds[i])
 		i += 1
 
+	for i in fds:
+		i.close()
 def partition(lines):
 	global PROCESS_NUM
 
