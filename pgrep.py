@@ -5,38 +5,46 @@ import os
 import sys
 import math
 
-def listToGrep(l):
-	outputs = []
+PROCESS_NUM = 5
+
+def listToGrep(l, fd):
 	for i in l:
-		fd = os.popen("grep test", 'w') 
 		fd.write(i)
-	return outputs
-	
-def parallel(partitions):
+		
+def parallel(partitions, parameter):
+	global PROCESS_NUM
+
 	outputs = []
+	fds = []
+	cmd = "grep " + parameter
+
+	for i in range(0, PROCESS_NUM):
+		fd = os.popen(cmd, 'w') 
+		fds.append(fd)
+	i=0;
 	for lines in partitions:
-		output = listToGrep(lines)
-		if(len(output) != 0):
-			outputs.extend(output)
+		listToGrep(lines, fds[i])
+		i += 1
 
 def partition(lines):
+	global PROCESS_NUM
+
 	partitions = []
 	length = len(lines)
 
-	if length < 5:
+	if length < PROCESS_NUM:
 		partitions.extend(lines)
 		return partitions
 
 	#int(math.floor(length/5))
 	# Time to partition
-	num = length/5
+	num = length/PROCESS_NUM
 	partition_length = []
 	
-	for i in xrange(1,5):
+	for i in range(1,PROCESS_NUM):
 		partition_length.append(num)
 	partition_length.append(length-4*num)
 
-	
 	i = 0
 	counter = partition_length[i]
 	partition = []
@@ -59,7 +67,7 @@ def partition(lines):
 def main():
 	lines = sys.stdin.readlines()
 	partitions = partition(lines)
-	parallel(partitions)
+	parallel(partitions, sys.argv[1])
 
 if __name__ =="__main__":
 	main()
